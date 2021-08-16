@@ -1,3 +1,4 @@
+import NIA from 'node-nia-connector'
 import NIAConnMan from './nia_conn_man'
 
 export default function (app, express) {
@@ -52,6 +53,7 @@ export default function (app, express) {
 
   function _loadConfig (req, res, next) {
     req.NIAConnector = NIAConnMan.get(req.hostname)
-    return req.req.NIAConnector ? next() : next(404)
+    console.log('nia-auth: domain: ', req.hostname)
+    return req.NIAConnector ? next() : next(404)
   }
 }

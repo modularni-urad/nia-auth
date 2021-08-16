@@ -1,0 +1,26 @@
+{
+  "name": "nia-auth",
+  "version": "0.0.0",
+  "description": "API for connecting to NIA",
+  "main": "server.js",
+  "scripts": {
+    "start": "node -r esm server.js",
+    "startdbg": "node -r esm --inspect-brk server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Vaclav Klecanda <vencax77@gmail.com> (http://vxk.cz)",
+  "license": "MIT",
+  "dependencies": {
+    "chokidar": "^3.5.2",
+    "debug": "^4.3.2",
+    "esm": "^3.2.25",
+    "express": "^4.16.2",
+    "morgan": "^1.10.0",
+    "node-nia-connector": "^1.0.1",
+    "underscore": "^1.9.1"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "devDependencies": {}
+}
