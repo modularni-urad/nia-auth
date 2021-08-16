@@ -27,7 +27,7 @@ export default function (app, express) {
     }).catch(next)
   })
 
-  app.post('/LoginAssert', _loadConfig, function (req, res, next) {
+  app.post('/login_assert', _loadConfig, function (req, res, next) {
     req.NIAConnector.postAssert(req.body).then(samlResponse => {
       req.session.user = samlResponse
       res.redirect(process.env.AFTERLOGIN_URL)
@@ -42,7 +42,7 @@ export default function (app, express) {
       .catch(next)
   })
 
-  app.post('/LogoutAssert', _loadConfig, (req, res, next) => {
+  app.post('/logout_assert', _loadConfig, (req, res, next) => {
     try {
       const samlResponse = req.NIAConnector.logoutAssert(req.body)
       res.json(samlResponse)
