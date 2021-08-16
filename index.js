@@ -9,7 +9,7 @@ export default async function init (mocks = null) {
 
   initRoutes(app, express)
 
-  app.use((err, req, res, next) {
+  app.use((err, req, res, next) => {
     const status = err.status ||
       isNaN(Number(err.message)) ? 400 : Number(err.message)
     res.status(status).send(err.message || err)

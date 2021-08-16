@@ -1,6 +1,8 @@
+import NIAConnMan from './nia_conn_man'
 
 export default function (app, express) {
   app.use(express.urlencoded({ extended: true }))
+  NIAConnMan.init()
 
   app.get('/login', _loadConfig, function (req, res, next) {
     const opts = {
@@ -24,7 +26,7 @@ export default function (app, express) {
     }).catch(next)
   })
 
-  app.post('/ExternalLogin', _loadConfig, function (req, res, next) {
+  app.post('/LoginAssert', _loadConfig, function (req, res, next) {
     req.NIAConnector.postAssert(req.body).then(samlResponse => {
       req.session.user = samlResponse
       res.redirect(process.env.AFTERLOGIN_URL)
@@ -39,7 +41,7 @@ export default function (app, express) {
       .catch(next)
   })
 
-  app.post('/ExternalLogout', _loadConfig, (req, res, next) => {
+  app.post('/LogoutAssert', _loadConfig, (req, res, next) => {
     try {
       const samlResponse = req.NIAConnector.logoutAssert(req.body)
       res.json(samlResponse)
@@ -49,8 +51,7 @@ export default function (app, express) {
   })
 
   function _loadConfig (req, res, next) {
-    const domain = process.env.DOMAIN || req.hostname
-    req.orgid = D2O[domain]
-    return req.orgid ? next() : next(404)
+    req.NIAConnector = NIAConnMan.get(req.hostname)
+    return req.req.NIAConnector ? next() : next(404)
   }
 }
