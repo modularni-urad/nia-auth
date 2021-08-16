@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node -r esm server.js",
-    "startdbg": "node -r esm --inspect-brk server.js",
+    "startdbg": "node -r esm --inspect server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Vaclav Klecanda <vencax77@gmail.com> (http://vxk.cz)",
