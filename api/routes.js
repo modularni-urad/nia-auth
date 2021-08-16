@@ -1,5 +1,6 @@
 import NIA from 'node-nia-connector'
 import NIAConnMan from './nia_conn_man'
+import { setSessionCookie, destroySessionCookie } from './session'
 
 export default function (app, express) {
   app.use(express.urlencoded({ extended: true }))
@@ -27,11 +28,16 @@ export default function (app, express) {
     }).catch(next)
   })
 
-  app.post('/login_assert', _loadConfig, function (req, res, next) {
-    req.NIAConnector.postAssert(req.body).then(samlResponse => {
-      req.session.user = samlResponse
-      res.redirect(process.env.AFTERLOGIN_URL)
-    }).catch(next)
+  app.post('/login_assert', _loadConfig, async function (req, res, next) {
+    try {
+      const samlResponse = await req.NIAConnector.postAssert(req.body)
+      console.log(samlResponse)
+      await setSessionCookie(samlResponse, res)
+      res.cookie('samlUser', samlResponse)
+      res.redirect(`https://${req.hostname}`)
+    } catch(err) {
+      next(err)
+    }
   })
 
   app.get('/logout', _loadConfig, (req, res, next) => {
