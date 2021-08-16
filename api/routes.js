@@ -1,10 +1,15 @@
 import NIA from 'node-nia-connector'
+import { required } from 'modularni-urad-utils/auth'
 import NIAConnMan from './nia_conn_man'
 import { setSessionCookie, destroySessionCookie } from './session'
 
 export default function (app, express) {
   app.use(express.urlencoded({ extended: true }))
   NIAConnMan.init()
+
+  app.get('/profile', required, function (req, res) {
+    res.json(req.user)
+  })
 
   app.get('/login', _loadConfig, function (req, res, next) {
     const opts = {
@@ -40,7 +45,7 @@ export default function (app, express) {
     }
   })
 
-  app.get('/logout', _loadConfig, (req, res, next) => {
+  app.get('/logout', required, _loadConfig, (req, res, next) => {
     const nameId = req.user.NameID
     const sessionIndex = req.user.SessionIndex
     req.NIAConnector.createLogoutRequestUrl(nameId, sessionIndex)
