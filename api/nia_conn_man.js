@@ -9,11 +9,12 @@ assert.ok(fs.existsSync(process.env.CONFIG_FOLDER), 'env.CONFIG_FOLDER not exist
 const PUBLIC_ADDR = process.env.PUBLIC_ADDR
 
 function createConnection (confPath, domain) {
+  const audience = `https://${domain}/LoginAssert`
   return new NIA({
-    audience: domain,
+    audience,
     private_key: fs.readFileSync(path.join(confPath, 'private.key')).toString(),
     certificate: fs.readFileSync(path.join(confPath, 'certificate.crt')).toString(),
-    assert_endpoint: `${PUBLIC_ADDR}/LoginAssert`
+    assert_endpoint: audience
   })
 }
 
