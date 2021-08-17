@@ -1,4 +1,5 @@
 import axios from 'axios'
+import _ from 'underscore'
 const SESSION_SVC = process.env.SESSION_SERVICE || 'http://session-svc'
 const COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'Bearer'
 
