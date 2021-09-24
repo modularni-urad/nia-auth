@@ -8,7 +8,7 @@ import NIA from 'node-nia-connector'
 assert.ok(fs.existsSync(process.env.CONF_FOLDER), 'env.CONF_FOLDER not exist!')
 
 function createConnection (confPath, domain) {
-  const audience = `https://${domain}/nia/login_assert`
+  const audience = `https://${domain}/api/nia/login_assert` // TODO: env.var?
   return new NIA({
     audience,
     private_key: fs.readFileSync(path.join(confPath, 'private.key')).toString(),
