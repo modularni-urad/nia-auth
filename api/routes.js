@@ -1,17 +1,15 @@
 import NIA from 'node-nia-connector'
-import { required } from 'modularni-urad-utils/auth'
-import NIAConnMan from './nia_conn_man'
 import { setSessionCookie, createUser, destroySessionCookie } from './session'
 
-export default function (app, express) {
-  app.use(express.urlencoded({ extended: true }))
-  NIAConnMan.init()
+export default function (ctx, app) {
+  const { auth, express } = ctx
+  const bodyParser = express.urlencoded({ extended: true })
 
-  app.get('/profile', required, function (req, res) {
-    res.json(req.user)
-  })
+  // app.get('/profile', required, function (req, res) {
+  //   res.json(req.user)
+  // })
 
-  app.get('/login', _loadConfig, function (req, res, next) {
+  app.get('/login', function (req, res, next) {
     const opts = {
       attrs: [
         { name: NIA.PROFILEATTRS.PERSON_IDENTIFIER, required: true },
@@ -33,17 +31,17 @@ export default function (app, express) {
     }).catch(next)
   })
 
-  app.post('/login_assert', _loadConfig, async function (req, res, next) {
+  app.post('/login_assert', bodyParser, async function (req, res, next) {
     try {
       const samlResponse = await req.NIAConnector.postAssert(req.body)
       await setSessionCookie(createUser(samlResponse), res)
-      res.redirect(`https://${req.hostname}`)
+      res.redirect(req.tenantcfg.nia.redirect_url)
     } catch(err) {
       next(err)
     }
   })
 
-  app.get('/logout', required, _loadConfig, (req, res, next) => {
+  app.get('/logout', auth.required, (req, res, next) => {
     const nameId = req.user.meta.NameID
     const sessionIndex = req.user.meta.SessionIndex
     req.NIAConnector.createLogoutRequestUrl(nameId, sessionIndex)
@@ -51,7 +49,7 @@ export default function (app, express) {
       .catch(next)
   })
 
-  app.post('/logout_assert', _loadConfig, (req, res, next) => {
+  app.post('/logout_assert', bodyParser, (req, res, next) => {
     try {
       const samlResponse = req.NIAConnector.logoutAssert(req.body)
       destroySessionCookie(res)
@@ -60,10 +58,4 @@ export default function (app, express) {
       next(err)
     }
   })
-
-  function _loadConfig (req, res, next) {
-    req.NIAConnector = NIAConnMan.get(req.hostname)
-    console.log('nia-auth: domain: ', req.hostname)
-    return req.NIAConnector ? next() : next(404)
-  }
 }

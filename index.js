@@ -1,24 +1,26 @@
-import morgan from 'morgan'
-import express from 'express'
-
+import NIA from 'node-nia-connector'
 import initRoutes from './api/routes'
 
-export default async function init (mocks = null) {
-  const app = express()
-  app.use(morgan('dev'))
+export default async function init (ctx) {
+  const { express, ErrorClass } = ctx
+  const api = express()
 
-  initRoutes(app, express)
+  function loadConfig (req, res, next) {
+    const url = process.env.AUDIENCE_URL.replace('{{TENANTID}}', req.tenantid)
+    const audience = `${url}/login_assert`
+    req.NIAConnector = req.tenantcfg
+      && req.tenantcfg.nia.private_key
+      && req.tenantcfg.nia.certificate 
+      && new NIA({
+        audience,
+        private_key: req.tenantcfg.nia.private_key,
+        certificate: req.tenantcfg.nia.certificate,
+        assert_endpoint: audience
+      })
+    return req.NIAConnector ? next() : next(new ErrorClass(404, 'unknown tenant'))
+  }
 
-  app.use((err, req, res, next) => {
-    const status = err.status ||
-      isNaN(Number(err.message)) ? 400 : Number(err.message)
-    res.status(status).send(err.message || err.toString())
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('---------------------------------------------------------')
-      console.log(err)
-      console.log('---------------------------------------------------------')
-    }
-  })
-
-  return app
+  api.use(loadConfig)
+  initRoutes(ctx, api)
+  return api
 }
