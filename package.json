@@ -2,7 +2,7 @@
   "name": "nia-auth",
   "version": "0.0.0",
   "description": "API for connecting to NIA",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "start": "node -r esm server.js",
     "startdbg": "node -r esm --inspect server.js",
