@@ -11,6 +11,7 @@ export function createUser (samlResponse) {
 }
 
 export async function setSessionCookie(user, res) {
+  Object.assign(user, { id: user.PersonIdentifier })
   const tokenReq = await axios.post(`${SESSION_SVC}/sign`, user)
   const token = tokenReq.data.token
   res.cookie(COOKIE_NAME, token, {
