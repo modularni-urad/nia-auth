@@ -5,10 +5,6 @@ export default function (ctx, app) {
   const { auth, express } = ctx
   const bodyParser = express.urlencoded({ extended: true })
 
-  // app.get('/profile', required, function (req, res) {
-  //   res.json(req.user)
-  // })
-
   app.get('/login', function (req, res, next) {
     const opts = {
       attrs: [
@@ -41,11 +37,13 @@ export default function (ctx, app) {
     }
   })
 
-  app.get('/logout', auth.required, (req, res, next) => {
+  app.get('/logout', auth.session, auth.required, (req, res, next) => {
     const nameId = req.user.meta.NameID
     const sessionIndex = req.user.meta.SessionIndex
     req.NIAConnector.createLogoutRequestUrl(nameId, sessionIndex)
-      .then(logoutUrl => { res.redirect(logoutUrl) })
+      .then(logoutUrl => {
+        res.send(logoutUrl)
+      })
       .catch(next)
   })
 
@@ -53,7 +51,7 @@ export default function (ctx, app) {
     try {
       const samlResponse = req.NIAConnector.logoutAssert(req.body)
       destroySessionCookie(res)
-      res.json(samlResponse)
+      res.redirect(req.tenantcfg.nia.redirect_url)
     } catch (err) {
       next(err)
     }

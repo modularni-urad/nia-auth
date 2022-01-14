@@ -15,7 +15,8 @@ export async function setSessionCookie(user, res) {
   const token = tokenReq.data.token
   res.cookie(COOKIE_NAME, token, {
     secure: process.env.NODE_ENV === 'production',
-    httpOnly: false,
+    httpOnly: true,
+    sameSite: 'none',
     maxAge: 60 * 60 * 1000 // 1 h
   })
 }
