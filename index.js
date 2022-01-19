@@ -16,7 +16,7 @@ export default async function init (ctx) {
         private_key: req.tenantcfg.nia.private_key,
         certificate: req.tenantcfg.nia.certificate,
         assert_endpoint: audience
-      })
+      }, req.tenantcfg.nia.debug)
     return req.NIAConnector ? next() : next(new ErrorClass(404, 'unknown tenant'))
   }
 

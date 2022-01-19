@@ -15,7 +15,7 @@
     "esm": "^3.2.25",
     "express": "^4.16.2",
     "modularni-urad-utils": "1.5.0",
-    "node-nia-connector": "^1.0.2",
+    "node-nia-connector": "git+https://github.com/otevrenamesta/node-nia-connector.git",
     "underscore": "^1.9.1"
   },
   "engines": {
