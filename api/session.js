@@ -10,9 +10,19 @@ export function createUser (samlResponse) {
   return user
 }
 
+export async function getToken(user) {
+  try {
+    const tokenReq = await axios.post(`${SESSION_SVC}/sign`, user)
+    return tokenReq.data.token
+  } catch (err) {
+    // logger.error(err)
+    throw err
+  }
+}
+
 export async function setSessionCookie(user, res) {
   Object.assign(user, { id: user.PersonIdentifier })
-  const tokenReq = await axios.post(`${SESSION_SVC}/sign`, user)
+  // getToken
   const token = tokenReq.data.token
   res.cookie(COOKIE_NAME, token, {
     secure: process.env.NODE_ENV === 'production',

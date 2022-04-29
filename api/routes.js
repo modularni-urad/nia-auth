@@ -1,5 +1,5 @@
 import NIA from 'node-nia-connector'
-import { setSessionCookie, createUser, destroySessionCookie } from './session'
+import { getToken, createUser } from './session'
 
 export default function (ctx, app) {
   const { auth, express } = ctx
@@ -30,8 +30,20 @@ export default function (ctx, app) {
   app.post('/login_assert', bodyParser, async function (req, res, next) {
     try {
       const samlResponse = await req.NIAConnector.postAssert(req.body)
-      await setSessionCookie(createUser(samlResponse), res)
-      res.redirect(req.tenantcfg.nia.redirect_url)
+      const token = await getToken(createUser(samlResponse))
+      res.set('Content-Type', 'text/html')
+      res.write(`
+<html>
+  <head>
+    <script>
+      localStorage.setItem('_BBB_token', '${token}')
+      window.location.replace("https://stredni.web.otevrenamesta.cz/")
+    </script>
+  </head>
+  <body></body>
+</html>
+      `)
+      res.end()
     } catch(err) {
       next(err)
     }
@@ -50,7 +62,7 @@ export default function (ctx, app) {
   app.post('/logout_assert', bodyParser, (req, res, next) => {
     try {
       const samlResponse = req.NIAConnector.logoutAssert(req.body)
-      destroySessionCookie(res)
+      // destroySessionCookie(res)
       res.redirect(req.tenantcfg.nia.redirect_url)
     } catch (err) {
       next(err)
