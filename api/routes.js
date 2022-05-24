@@ -1,5 +1,5 @@
 import NIA from 'node-nia-connector'
-import { setSessionCookie, createUser, destroySessionCookie } from './session'
+import { getToken, createUser, destroySessionCookie } from './session'
 
 export default function (ctx, app) {
   const { auth, express } = ctx
@@ -30,8 +30,9 @@ export default function (ctx, app) {
   app.post('/login_assert', bodyParser, async function (req, res, next) {
     try {
       const samlResponse = await req.NIAConnector.postAssert(req.body)
-      await setSessionCookie(createUser(samlResponse), res)
-      res.redirect(req.tenantcfg.nia.redirect_url)
+      const token = await getToken(createUser(samlResponse))
+      const url = req.tenantcfg.nia.login_redirect_url.replace('{{TOKEN}}', token)
+      res.redirect(url)
     } catch(err) {
       next(err)
     }

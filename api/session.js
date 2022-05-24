@@ -7,13 +7,17 @@ export function createUser (samlResponse) {
   const user = Object.assign({}, samlResponse.user, {
     meta: _.pick(samlResponse, 'NameID', 'SessionIndex', 'LoA')
   })
+  Object.assign(user, { id: user.PersonIdentifier })
   return user
 }
 
-export async function setSessionCookie(user, res) {
-  Object.assign(user, { id: user.PersonIdentifier })
+export async function getToken (user) {
   const tokenReq = await axios.post(`${SESSION_SVC}/sign`, user)
-  const token = tokenReq.data.token
+  return tokenReq.data.token
+}
+
+export async function setSessionCookie(user, res) {
+  const token = await getToken(user)
   res.cookie(COOKIE_NAME, token, {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: false,
